@@ -14,10 +14,14 @@ func New(w io.Writer, limit int) *Writer {
 
 // NewWriterSize limit 限制写入大小，size 缓冲器容量
 func NewWriterSize(w io.Writer, limit, size int) *Writer {
+	return NewWriterBuffer(w, limit, make([]byte, 0, size))
+}
+
+func NewWriterBuffer(w io.Writer, limit int, buf []byte) *Writer {
 	return &Writer{
 		w:     w,
 		limit: limit,
-		buf:   make([]byte, 0, size),
+		buf:   buf,
 	}
 }
 
@@ -48,4 +52,12 @@ func (w *Writer) Write(p []byte) (n int, err error) {
 func (w *Writer) Flush() (err error) {
 	_, err = w.w.Write(w.buf)
 	return
+}
+
+func (w *Writer) Size() int {
+	return len(w.buf)
+}
+
+func (w *Writer) Reset() {
+	w.buf = w.buf[:0]
 }
